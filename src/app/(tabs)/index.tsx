@@ -1,18 +1,11 @@
 import { Stack } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-export default function Home() {
+export default function Play() {
   return (
-    <>
-      <Stack.Screen options={{ title: 'Tab One' }} />
-      <View style={styles.container}></View>
-    </>
+    <View className="flex bg-red-500">
+      <Stack.Screen options={{ title: 'Play' }} />
+      <Text className="text-center text-3xl">Hello world</Text>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-  },
-});
