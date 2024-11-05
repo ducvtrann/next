@@ -75,6 +75,8 @@ export const useAuthListener = () => {
         case 'TOKEN_REFRESHED':
           if (session?.access_token) {
             updateIsAuthenticated(true);
+          } else {
+            updateIsAuthenticated(false);
           }
           break;
         default:
