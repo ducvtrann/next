@@ -1,8 +1,31 @@
-import { MMKV } from 'react-native-mmkv';
+import { MMKV } from "react-native-mmkv"
+import * as SecureStore from "expo-secure-store"
+import * as Crypto from "expo-crypto"
 
-export const storage = new MMKV({
-  id: 'session',
-});
+const fetchOrGenerateEncryptionKey = (): string => {
+  const encryptionKey = SecureStore.getItem("session-encryption-key")
+
+  if (encryptionKey) {
+    return encryptionKey
+  } else {
+    const uuid = Crypto.randomUUID()
+    SecureStore.setItem("session-encryption-key", uuid)
+    return uuid
+  }
+}
+
+const storage = new MMKV({
+  id: "session",
+  encryptionKey: fetchOrGenerateEncryptionKey(),
+})
+
+// TODO: Remove this workaround for encryption: https://github.com/mrousavy/react-native-mmkv/issues/665
+storage.set("workaround", true)
+
+/**
+ * A simple wrapper around MMKV that provides a base API
+ * that matches AsyncStorage for use with Supabase.
+ */
 
 /**
  * Get an item from storage by key
@@ -12,10 +35,10 @@ export const storage = new MMKV({
  */
 export async function getItem(key: string): Promise<string | null> {
   try {
-    return storage.getString(key) ?? null;
+    return storage.getString(key) ?? null
   } catch {
-    console.warn(`Failed to get key "${key}" from secure storage`);
-    return null;
+    console.warn(`Failed to get key "${key}" from secure storage`)
+    return null
   }
 }
 
@@ -27,9 +50,10 @@ export async function getItem(key: string): Promise<string | null> {
  */
 export async function setItem(key: string, value: string): Promise<void> {
   try {
-    storage.set(key, value);
+    console.log("setItem", { key, value })
+    storage.set(key, value)
   } catch {
-    console.warn(`Failed to set key "${key}" in secure storage`);
+    console.warn(`Failed to set key "${key}" in secure storage`)
   }
 }
 
@@ -40,8 +64,8 @@ export async function setItem(key: string, value: string): Promise<void> {
  */
 export async function removeItem(key: string): Promise<void> {
   try {
-    storage.delete(key);
+    storage.delete(key)
   } catch {
-    console.warn(`Failed to remove key "${key}" from secure storage`);
+    console.warn(`Failed to remove key "${key}" from secure storage`)
   }
 }

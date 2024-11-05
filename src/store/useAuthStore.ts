@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { Session, supabase } from '@/utils/supabase';
+import { useEffect } from 'react';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -10,6 +11,7 @@ interface AuthActions {
   signIn: (email: string, password: string) => void;
   signOut: () => void;
   signUp: (email: string, password: string) => void;
+  updateIsAuthenticated: (isAuthenticated: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState & AuthActions>((set) => ({
@@ -53,4 +55,37 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       console.error(error);
     }
   },
+  updateIsAuthenticated: (isAuthenticated) => {
+    set({ isAuthenticated });
+  },
 }));
+
+export const useAuthListener = () => {
+  const updateIsAuthenticated = useAuthStore((state) => state.updateIsAuthenticated);
+  console.log('useAuthListener');
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('onAuthStateChange', event, session);
+      switch (event) {
+        case 'SIGNED_OUT':
+          updateIsAuthenticated(false);
+          break;
+        case 'INITIAL_SESSION':
+          updateIsAuthenticated(true);
+          break;
+        case 'SIGNED_IN':
+        case 'TOKEN_REFRESHED':
+          updateIsAuthenticated(true);
+          break;
+        default:
+        // no-op
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
+};
