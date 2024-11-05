@@ -62,22 +62,20 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
 
 export const useAuthListener = () => {
   const updateIsAuthenticated = useAuthStore((state) => state.updateIsAuthenticated);
-  console.log('useAuthListener');
   useEffect(() => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('onAuthStateChange', event, session);
       switch (event) {
         case 'SIGNED_OUT':
           updateIsAuthenticated(false);
           break;
         case 'INITIAL_SESSION':
-          updateIsAuthenticated(true);
-          break;
         case 'SIGNED_IN':
         case 'TOKEN_REFRESHED':
-          updateIsAuthenticated(true);
+          if (session?.access_token) {
+            updateIsAuthenticated(true);
+          }
           break;
         default:
         // no-op
