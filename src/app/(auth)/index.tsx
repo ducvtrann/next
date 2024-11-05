@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '@/utils/supabase';
 import { Text, StyleSheet, View, SafeAreaView, Alert, Button, TextInput } from 'react-native';
 import { useAuthStore } from '@store/useAuthStore';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 
 export default function signInScreen() {
   const router = useRouter();
@@ -11,6 +11,10 @@ export default function signInScreen() {
   const [error, setError] = useState(null);
   const { signIn, signUp, isAuthenticated } = useAuthStore();
   console.log('🚀 ~ signInScreen ~ isAuthenticated:', isAuthenticated);
+
+  if (isAuthenticated) {
+    return <Redirect href="/(app)/(play)" />;
+  }
 
   const handlesignIn = async () => {
     try {
