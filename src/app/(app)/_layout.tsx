@@ -1,13 +1,22 @@
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import { House, PlusCircle, Search, Trophy, User } from 'lucide-react-native';
 import { theme } from '@/theme/theme';
+import { useAuthStore } from '@store/useAuthStore';
 
 export default function TabLayout() {
+  const { isAuthenticated } = useAuthStore();
+  console.log('🚀 ~ TabLayout ~ isAuthenticated:', isAuthenticated);
+
+  if (!isAuthenticated) {
+    return <Redirect href="/(auth)" />;
+  }
+
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: theme.colorGreen,
       }}>
+      <Tabs.Screen name="index" redirect />
       <Tabs.Screen
         name="(play)"
         options={{
